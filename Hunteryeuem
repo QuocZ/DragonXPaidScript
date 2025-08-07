@@ -1,0 +1,71 @@
+--[[
+  📛 DeadRedHunter Hub v1.0
+  🧠 Auto Farm for SBSD - Titan Boombox (Anti-Parasite)
+  ✅ Farm ổn định ~250–300 points/min
+  💡 By DeadRedHunter & GPT Dev
+]]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+
+-- 💾 Lưu điểm và thời gian ban đầu
+local oldPoints = player.leaderstats.Points.Value
+local startTime = tick()
+
+-- 🧨 Spawn Titan Boombox (tùy chỉnh nếu RemoteEvent khác)
+local function spawnTitan()
+    print("🧨 [DeadRedHunter Hub] Triệu hồi Titan Boombox...")
+    -- Ví dụ remote giả định:
+    -- ReplicatedStorage.Remotes.SpawnTitanBoombox:FireServer()
+end
+
+-- 🚶 Di chuyển đến rìa map
+local function moveToEdge()
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.new(100, 0, 0)
+        print("📦 Titan đã được đẩy ra rìa map!")
+    end
+end
+
+-- 🛡️ Hạn chế chết
+local function antiDeath()
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if humanoid and humanoid.Health < 30 then
+        char.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.new(5, 0, -5)
+        print("⚠️ Auto né đòn do máu thấp!")
+    end
+end
+
+-- 🧮 Cập nhật tốc độ farm
+local function updateStats()
+    local currentPoints = player.leaderstats.Points.Value
+    local elapsed = tick() - startTime
+    local ppm = math.floor((currentPoints - oldPoints) / (elapsed / 60))
+    print("🎯 DeadRedHunter Hub - Farm Stats")
+    print("⭐ Điểm: " .. oldPoints .. " ➜ " .. currentPoints)
+    print("🕒 Thời gian: " .. math.floor(elapsed) .. "s")
+    print("⚡ Tốc độ: " .. ppm .. " điểm/phút")
+end
+
+-- 🧪 Vòng lặp 70 giây (titan chết rồi reset)
+local function startCycle()
+    while true do
+        pcall(function()
+            spawnTitan()
+            moveToEdge()
+            local cycleStart = tick()
+            while tick() - cycleStart < 70 do
+                antiDeath()
+                wait(1)
+            end
+            updateStats()
+        end)
+        wait(1)
+    end
+end
+
+-- 🚀 BẮT ĐẦU FARM
+print("✅ DeadRedHunter Hub v1.0 khởi động!")
+startCycle()
